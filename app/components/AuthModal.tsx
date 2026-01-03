@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 type AuthModalProps = {
   view: "login" | "register";
@@ -12,19 +13,67 @@ type AuthModalProps = {
 export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePrimary = () => {
-    const isValid = email === "test@admin.com" && password === "admin123";
-    if (!isValid) {
-      setError("Invalid email or password.");
+  const handlePrimary = async () => {
+    if (isLoading) {
       return;
     }
 
     setError("");
-    onClose();
-    router.push("/home");
+    setIsLoading(true);
+
+    try {
+      if (view === "register") {
+        const usernameNormalized = username.trim().toLowerCase();
+        const { data: available, error: availabilityError } =
+          await supabase.rpc("is_username_available", { u: usernameNormalized });
+        if (availabilityError) {
+          throw availabilityError;
+        }
+        if (!available) {
+          setError("That username is already taken.");
+          return;
+        }
+
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              display_name: name,
+              username: usernameNormalized,
+            },
+          },
+        });
+        if (signUpError) {
+          throw signUpError;
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (signInError) {
+          throw signInError;
+        }
+      }
+
+      onClose();
+      router.push("/home");
+    } catch (authError) {
+      setError(
+        view === "register"
+          ? "Could not create account. Check your details."
+          : "Invalid email or password."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -56,6 +105,43 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
         </div>
 
         <div className="mt-6 space-y-4 text-sm text-ink/70">
+          {view === "register" && (
+            <>
+              <label className="block">
+                <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
+                  Name
+                </span>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-ink/10 bg-white/80 px-4 py-3 text-sm text-ink outline-none focus:border-pink-2/60"
+                  style={{
+                    fontFamily: '"FKGrotesk-Regular", var(--font-geist-sans)',
+                  }}
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
+                  Username
+                </span>
+                <div className="mt-2 flex items-center gap-2 rounded-2xl border border-ink/10 bg-white/80 px-4 py-3 text-sm text-ink">
+                  <span className="text-ink/50">@</span>
+                  <input
+                    type="text"
+                    placeholder="velora"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    className="w-full bg-transparent text-sm text-ink outline-none"
+                    style={{
+                      fontFamily: '"FKGrotesk-Regular", var(--font-geist-sans)',
+                    }}
+                  />
+                </div>
+              </label>
+            </>
+          )}
           <label className="block">
             <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
               Email
@@ -64,6 +150,7 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
               type="email"
               placeholder="you@velora.app"
               value={email}
+              autoComplete="email"
               onChange={(event) => setEmail(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-ink/10 bg-white/80 px-4 py-3 text-sm text-ink outline-none focus:border-pink-2/60"
               style={{
@@ -79,6 +166,7 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
               type="password"
               placeholder="••••••••"
               value={password}
+              autoComplete={view === "register" ? "new-password" : "current-password"}
               onChange={(event) => setPassword(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-ink/10 bg-white/80 px-4 py-3 text-sm text-ink outline-none focus:border-pink-2/60"
               style={{
@@ -86,21 +174,6 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
               }}
             />
           </label>
-          {view === "register" && (
-            <label className="block">
-              <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
-                Name
-              </span>
-              <input
-                type="text"
-                placeholder="Your name"
-                className="mt-2 w-full rounded-2xl border border-ink/10 bg-white/80 px-4 py-3 text-sm text-ink outline-none focus:border-pink-2/60"
-                style={{
-                  fontFamily: '"FKGrotesk-Regular", var(--font-geist-sans)',
-                }}
-              />
-            </label>
-          )}
         </div>
 
         {error && (
@@ -125,8 +198,15 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
             style={{
               fontFamily: '"FKGrotesk-Thin", var(--font-geist-sans)',
             }}
+            disabled={isLoading}
           >
-            <span>{view === "register" ? "Register" : "Sign in"}</span>
+            <span>
+              {isLoading
+                ? "Please wait"
+                : view === "register"
+                  ? "Register"
+                  : "Sign in"}
+            </span>
           </button>
           <button
             type="button"
