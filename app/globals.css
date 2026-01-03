@@ -49,3 +49,100 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes velora-fade-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes velora-lift-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -18px, 0);
+  }
+}
+
+.velora-hero {
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: velora-fade-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    velora-lift-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0s, 1.4s;
+}
+
+.velora-actions {
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: velora-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 1.6s;
+}
+
+.velora-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-size: 160% 160%;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.velora-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--velora-btn-gradient);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  z-index: 0;
+}
+
+.velora-btn:hover {
+  transform: translateY(-2px);
+}
+
+.velora-btn:hover::before {
+  opacity: 1;
+}
+
+.velora-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+.velora-btn-register {
+  background-color: var(--cream-light);
+  --velora-btn-gradient: linear-gradient(
+    135deg,
+    #f4f5d7 0%,
+    #c4eaa5 60%,
+    #73a847 100%
+  );
+}
+
+.velora-btn-register:hover {
+  border-color: rgba(201, 169, 161, 0.45);
+  box-shadow: 0 10px 20px rgba(196, 234, 165, 0.45);
+}
+
+.velora-btn-login {
+  background-color: var(--cream-light);
+  --velora-btn-gradient: linear-gradient(
+    135deg,
+    #ebecc5 0%,
+    #efccc3 55%,
+    #f77386 100%
+  );
+}
+
+.velora-btn-login:hover {
+  box-shadow: 0 10px 20px rgba(239, 204, 195, 0.45);
+}

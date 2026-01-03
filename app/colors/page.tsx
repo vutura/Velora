@@ -13,6 +13,45 @@ const COLORS = [
   { name: "Danger Soft", hex: "#d96a6a", className: "bg-danger-soft" },
 ];
 
+const GRADIENTS = [
+  {
+    name: "Velora Blush",
+    css: "linear-gradient(135deg, #f77386 0%, #fc90a0 45%, #f4f5d7 100%)",
+  },
+  {
+    name: "Mint Morning",
+    css: "linear-gradient(135deg, #f4f5d7 0%, #c4eaa5 60%, #73a847 100%)",
+  },
+  {
+    name: "Cream Sunset",
+    css: "linear-gradient(135deg, #ebecc5 0%, #efccc3 55%, #f77386 100%)",
+  },
+  {
+    name: "Ink Wash",
+    css: "linear-gradient(135deg, #3a382e 0%, #191813 100%)",
+  },
+  {
+    name: "Soft Bloom",
+    css: "radial-gradient(circle at 20% 20%, #fc90a0 0%, #efccc3 38%, #ebecc5 70%, #f4f5d7 100%)",
+  },
+  {
+    name: "Petal Haze",
+    css: "linear-gradient(160deg, #f4f5d7 0%, #efccc3 50%, #fc90a0 100%)",
+  },
+  {
+    name: "Garden Veil",
+    css: "radial-gradient(circle at 80% 20%, #c4eaa5 0%, #f4f5d7 55%, #ebecc5 100%)",
+  },
+  {
+    name: "Warm Ink",
+    css: "linear-gradient(135deg, #191813 0%, #3a382e 40%, #c9c7af 100%)",
+  },
+  {
+    name: "Blush Tide",
+    css: "linear-gradient(120deg, #fc90a0 0%, #f77386 45%, #efccc3 100%)",
+  },
+];
+
 const ROLE_SAMPLES = [
   {
     role: "Titulos principales",
@@ -166,6 +205,41 @@ export default function ColorsPage() {
               <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="font-medium">{color.name}</span>
                 <span className="font-mono text-ink/70">{color.hex}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mt-16 max-w-5xl">
+        <header className="mb-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/70">
+            Gradients
+          </p>
+          <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
+            Gradientes para Velora
+          </h2>
+          <p className="mt-2 max-w-xl text-sm text-ink/70 sm:text-base">
+            Opciones suaves para backgrounds, banners o estados especiales.
+          </p>
+        </header>
+
+        <div className="grid gap-5 xs:grid-cols-2 lg:grid-cols-3">
+          {GRADIENTS.map((gradient) => (
+            <div
+              key={gradient.name}
+              className="rounded-2xl border border-ink/10 bg-white/40 p-4 shadow-[0_8px_20px_rgba(25,24,19,0.08)]"
+            >
+              <div
+                className="h-28 w-full rounded-xl"
+                style={{ backgroundImage: gradient.css }}
+                aria-label={`${gradient.name} gradient`}
+              />
+              <div className="mt-4">
+                <p className="text-sm font-medium">{gradient.name}</p>
+                <p className="mt-1 text-xs text-ink/60 break-words">
+                  {gradient.css}
+                </p>
               </div>
             </div>
           ))}
