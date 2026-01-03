@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseClient } from "../lib/supabaseClient";
 
 type AuthModalProps = {
   view: "login" | "register";
@@ -28,6 +28,12 @@ export default function AuthModal({ view, onClose, onSwitch }: AuthModalProps) {
     setIsLoading(true);
 
     try {
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        setError("Supabase is not configured yet.");
+        return;
+      }
+
       if (view === "register") {
         const usernameNormalized = username.trim().toLowerCase();
         const { data: available, error: availabilityError } =
